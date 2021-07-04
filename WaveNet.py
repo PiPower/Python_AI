@@ -24,13 +24,13 @@ class WaveNet():
             x_g = Conv1D(channels, kernelSize, padding='causal',dilation_rate=dilatation, kernel_regularizer= L2(0.05) )(x)
 
             g = tf.tanh(x_f) * tf.sigmoid(x_g)
-            g = Conv1D(128, 1, kernel_regularizer= L2(0.05) )(g)  
+            g = Conv1D(channels, 1, kernel_regularizer= L2(0.05) )(g)  
             skips.append(g)
             x = x + g
 
         a = Add()(skips)
         a = ReLU()(a)
-        a = Conv1D(64, 1, activation='relu', kernel_regularizer= L2(0.05) )(a)
+        a = Conv1D(channels/2, 1, activation='relu', kernel_regularizer= L2(0.05) )(a)
         a = Conv1D(1, 1, activation='relu', kernel_regularizer= L2(0.05) )(a)
 
         def slice(x, seq_length):
