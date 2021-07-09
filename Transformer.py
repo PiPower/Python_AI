@@ -266,15 +266,6 @@ class CustomSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
 
 
 #---------------------------------------------------------------------------
-d_model = 258
-transformer = Transformer(d_model, 2000, d_model, 2000, 3, 3, 2)
-learning_rate = CustomSchedule(d_model)
-
-#@optimizer = tf.keras.optimizers.Adam(learning_rate, beta_1=0.9, beta_2=0.98,epsilon=1e-9)
-optimizer = tf.keras.optimizers.Adam(learning_rate, beta_1=0.9, beta_2=0.98,epsilon=1e-9)
-
-
-loss_object = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True, reduction='none')
 
 def loss_function(real, pred):
   mask = tf.math.logical_not(tf.math.equal(real, 0))
@@ -296,21 +287,9 @@ def accuracy_function(real, pred):
   mask = tf.cast(mask, dtype=tf.float32)
   return tf.reduce_sum(accuracies)/tf.reduce_sum(mask)
 
-
-train_step_signature = [
-    tf.TensorSpec(shape=(None, None), dtype=tf.int64),
-    tf.TensorSpec(shape=(None, None), dtype=tf.int64),
-]
-
-
-train_loss = tf.keras.metrics.Mean(name='train_loss')
-train_accuracy = tf.keras.metrics.Mean(name='train_accuracy')
-
-
-def train_step(inp, tar,trf = None):
+def train_step(inp, tar,trf ):
   tar_inp = tar[:, :-1]
   tar_real = tar[:, 1:]
-  assert  transformer is not None
 
   enc_padding_mask, combined_mask, dec_padding_mask = create_masks(inp, tar_inp)
 
@@ -325,10 +304,9 @@ def train_step(inp, tar,trf = None):
 
 
 
-def test_step(inp, tar,trf = None):
+def test_step(inp, tar,trf ):
   tar_inp = tar[:, :-1]
   tar_real = tar[:, 1:]
-  assert  transformer is not None
 
   enc_padding_mask, combined_mask, dec_padding_mask = create_masks(inp, tar_inp)
 
@@ -338,25 +316,4 @@ def test_step(inp, tar,trf = None):
   return train_loss(loss), train_accuracy(accuracy_function(tar_real, tf.cast(predictions, dtype='int32')  ))
 
 
-if __name__ == '__main__':
-    word_length = 200
-    FakeWord = np.random.randint(0, high=1000, size=(64, word_length))
-    RealWord = np.random.randint(0, high=1000, size=(64, 100))
 
-
-    for (word, word2) in zip(FakeWord, RealWord):
-        x = np.random.randint(150, high=word_length-1)
-        y = np.random.randint(80, high=99)
-        word[x:] = 0
-        word2[y:] = 0
-
-    '''
-    mask = np.equal(FakeWord, 0)
-    mask = tf.convert_to_tensor(mask)
-    mask = mask[:, tf.newaxis, tf.newaxis, :]
-    
-    mask2 = np.equal(RealWord, 0)
-    mask2 = tf.convert_to_tensor(mask2)
-    mask2 = mask2[:, tf.newaxis, tf.newaxis, :]'''
-
-    train_step(FakeWord,RealWord)
