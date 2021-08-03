@@ -1,5 +1,4 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
 from tensorflow.keras.layers import UpSampling2D, Conv2D, Dense, LeakyReLU,\
     BatchNormalization, AveragePooling2D, Reshape, Flatten
@@ -83,10 +82,6 @@ class Generator(tf.keras.models.Model):
             for i in range(scale - 1):
                 out_channels = out_channels / 2
                 self.call_stack.append(ConvLayerUp(out_channels))
-        '''
-        for  i, conv in enumerate( self.to_RGB ):
-            dim = [(i+1)* dim for dim in self.entry_shape] + [int( self.out_channels/(2**i) )]
-            conv.build(dim)'''
 
     def call(self, x):
         y = None
@@ -140,11 +135,6 @@ class Discriminator(tf.keras.models.Model):
 
                 self.call_stack.append(ConvLayerDown(out_channels))
                 self.from_RGB.append(Conv2D(out_channels / 2, (1, 1), padding="same"))
-        '''
-        for i, conv in enumerate(self.from_RGB):
-            dim = [ 2**(i) * dim for dim in self.entry_shape] +  [3] #[int(self.out_channels / (2 ** (i+1) ) )  if i != len(self.from_RGB)-1 else 3 ]
-            conv.build(dim)
-        '''
 
         self.call_stack.reverse()
         self.from_RGB.reverse()
