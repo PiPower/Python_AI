@@ -204,13 +204,10 @@ class ProGAN():
     def train_on_batch(self, input_img, max_layer):
         self.discriminator.SetStartIndex(self.scale - max_layer)
         self.generator.SetMaxLayer(max_layer)
-        print("l")
+        
         noise = tf.random.normal(shape=(input_img.shape[0], self.latent_dim))
-        print("l")
         fakeImgs = self.generator(noise)
-        print("l")
         X = tf.concat([input_img, fakeImgs], axis=0)
-        print("l")
         Y = tf.concat([tf.ones(shape=(input_img.shape[0], 1)) * 0.9, tf.zeros(shape=(input_img.shape[0], 1))], axis=0)
 
         self.discriminator.trainable = True
