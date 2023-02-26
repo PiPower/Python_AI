@@ -2,7 +2,7 @@ from tensorflow.keras.layers import Input, Dense, Reshape, Flatten, Dropout
 import tensorflow_addons as tfa
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.layers import LeakyReLU, Conv2D, UpSampling2D, AveragePooling2D
-from GANs.networks.utils import *
+from utils import *
 
 
 @tf.function
